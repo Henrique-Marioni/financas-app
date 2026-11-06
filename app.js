@@ -5,6 +5,7 @@
    ============================================================ */
 
 const STORAGE_KEY = 'financas.v1';
+const APP_VERSION = '4';
 const TIPOS = {
   in: ['Extra', 'Salário', 'Outra entrada'],
   out: ['Avulso', 'Conta'],
@@ -785,9 +786,30 @@ $('#btnLimpar').addEventListener('click', () => {
 render();
 
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+$('#appVersion').textContent = APP_VERSION;
+
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW', e));
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).catch((e) => console.warn('SW', e));
+  // quando um service worker novo assumir, recarrega uma vez para usar a versão nova
+  let recarregou = false;
+  const tinhaVersaoAntiga = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (recarregou || !tinhaVersaoAntiga) return;
+    recarregou = true;
+    location.reload();
+  });
 }
+
+$('#btnAtualizar').addEventListener('click', async () => {
+  toast('Procurando atualização…');
+  try {
+    const reg = await navigator.serviceWorker?.getRegistration();
+    if (reg) await reg.update();
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => caches.delete(k)));
+  } catch (e) { console.warn(e); }
+  setTimeout(() => location.reload(), 600);
+});
 
 /* ---------------- Instalação (PWA) ---------------- */
 

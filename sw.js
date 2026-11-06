@@ -1,6 +1,6 @@
 // Service worker: deixa o app funcionando 100% offline.
 // Ao alterar algum arquivo do app, aumente a versão abaixo.
-const CACHE = 'financas-v3';
+const CACHE = 'financas-v4';
 const ASSETS = [
   './',
   'index.html',
@@ -35,8 +35,10 @@ self.addEventListener('activate', (e) => {
 // Rede primeiro (pega atualizações quando há internet), cache como fallback offline.
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) return;
+  // cache: 'no-cache' ignora o cache HTTP do navegador (GitHub Pages guarda por 10 min)
+  // e sempre confere no servidor se há versão nova quando há internet.
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request, { cache: 'no-cache' })
       .then((res) => {
         if (res.ok) {
           const copy = res.clone();
