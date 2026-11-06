@@ -6,8 +6,9 @@
   <meta name="theme-color" content="#0f172a">
   <title>Minhas Finanças</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -92,6 +93,12 @@
 
     <!-- AJUSTES -->
     <section class="view" id="view-ajustes" hidden>
+      <div class="card" id="cardInstalar" hidden>
+        <h3>Instalar no celular</h3>
+        <p class="muted" id="installMsg"></p>
+        <button class="btn primary block" id="btnInstalar" hidden>Instalar app</button>
+      </div>
+
       <div class="card">
         <h3>Planilha</h3>
         <p class="muted">Importe o .xlsx no formato da sua planilha (abas com Data, Tipo, Descrição, Entrada, Saída, Realizado?). Os meses do arquivo são atualizados; seus lançamentos manuais são mantidos.</p>

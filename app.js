@@ -786,3 +786,38 @@ if (navigator.storage && navigator.storage.persist) navigator.storage.persist().
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register('sw.js').catch((e) => console.warn('SW', e));
 }
+
+/* ---------------- Instalação (PWA) ---------------- */
+
+let installEvent = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+
+function renderInstall() {
+  const card = $('#cardInstalar');
+  if (isStandalone()) { card.hidden = true; return; }
+  card.hidden = false;
+  const btn = $('#btnInstalar');
+  if (installEvent) {
+    btn.hidden = false;
+    $('#installMsg').textContent = 'Instale para usar como um aplicativo, com ícone próprio, em tela cheia e sem internet.';
+  } else {
+    btn.hidden = true;
+    $('#installMsg').innerHTML = 'Abra este endereço no <b>Google Chrome</b> e toque em <b>⋮ → Instalar app</b>. ' +
+      'Se só aparecer "Criar atalho", feche o Chrome por completo, abra o endereço de novo, espere alguns segundos e tente outra vez.';
+  }
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  installEvent = e;
+  renderInstall();
+});
+window.addEventListener('appinstalled', () => { installEvent = null; renderInstall(); toast('App instalado!'); });
+$('#btnInstalar').addEventListener('click', async () => {
+  if (!installEvent) return;
+  installEvent.prompt();
+  await installEvent.userChoice.catch(() => null);
+  installEvent = null;
+  renderInstall();
+});
+renderInstall();

@@ -1,6 +1,6 @@
 // Service worker: deixa o app funcionando 100% offline.
 // Ao alterar algum arquivo do app, aumente a versão abaixo.
-const CACHE = 'financas-v1';
+const CACHE = 'financas-v2';
 const ASSETS = [
   './',
   'index.html',
@@ -8,13 +8,20 @@ const ASSETS = [
   'app.js',
   'manifest.webmanifest',
   'vendor/xlsx.full.min.js',
-  'icons/icon.svg',
   'icons/icon-192.png',
   'icons/icon-512.png',
+  'icons/maskable-192.png',
+  'icons/maskable-512.png',
+  'icons/apple-touch-icon.png',
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+  // Cacheia um por um: se algum arquivo faltar, o resto continua funcionando.
+  e.waitUntil(
+    caches.open(CACHE)
+      .then((c) => Promise.allSettled(ASSETS.map((a) => c.add(a))))
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (e) => {
@@ -27,14 +34,19 @@ self.addEventListener('activate', (e) => {
 
 // Rede primeiro (pega atualizações quando há internet), cache como fallback offline.
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
+  if (e.request.method !== 'GET' || !e.request.url.startsWith(self.location.origin)) return;
   e.respondWith(
     fetch(e.request)
       .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy));
+        if (res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, copy));
+        }
         return res;
       })
-      .catch(() => caches.match(e.request, { ignoreSearch: true }))
+      .catch(() =>
+        caches.match(e.request, { ignoreSearch: true })
+          .then((r) => r || (e.request.mode === 'navigate' ? caches.match('index.html') : undefined))
+      )
   );
 });
