@@ -103,7 +103,7 @@
         <h3>Planilha</h3>
         <p class="muted">Importe o .xlsx no formato da sua planilha (abas com Data, Tipo, Descrição, Entrada, Saída, Realizado?). Os meses do arquivo são atualizados; seus lançamentos manuais são mantidos.</p>
         <label class="btn primary block">
-          <input type="file" id="fileImport" accept=".xlsx,.xls,.xlsm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
+          <input type="file" id="fileImport" hidden>
           Importar planilha (.xlsx)
         </label>
         <button class="btn block" id="btnExportXlsx">Exportar para Excel (.xlsx)</button>
@@ -143,7 +143,7 @@
         <p class="muted">Os dados ficam só neste celular. Faça backup de vez em quando — se limpar os dados do navegador, eles somem.</p>
         <button class="btn block" id="btnBackup">Salvar backup (.json)</button>
         <label class="btn block">
-          <input type="file" id="fileRestore" accept=".json,application/json" hidden>
+          <input type="file" id="fileRestore" hidden>
           Restaurar backup
         </label>
         <button class="btn danger block" id="btnLimpar">Apagar todos os dados</button>

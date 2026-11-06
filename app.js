@@ -625,7 +625,9 @@ $('#fileImport').addEventListener('change', async (e) => {
   if (!file) return;
   try {
     const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, { type: 'array' });
+    let wb;
+    try { wb = XLSX.read(buf, { type: 'array' }); } catch (_) { wb = null; }
+    if (!wb || !wb.SheetNames.length) { toast('Esse arquivo não parece ser uma planilha do Excel (.xlsx)'); return; }
     const parsed = parseWorkbook(wb);
     if (!parsed.items.length) { toast('Nenhum lançamento encontrado na planilha'); return; }
     pendingImport = parsed;
