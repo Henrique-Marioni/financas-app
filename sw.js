@@ -1,6 +1,6 @@
 // Service worker: deixa o app funcionando 100% offline.
 // Ao alterar algum arquivo do app, aumente a versão abaixo.
-const CACHE = 'financas-v4';
+const CACHE = 'financas-v5';
 const ASSETS = [
   './',
   'index.html',

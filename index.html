@@ -34,6 +34,12 @@
         <div class="hero-sub">Só o que já foi realizado</div>
       </div>
 
+      <div class="card">
+        <h3>Onde está meu dinheiro</h3>
+        <p class="muted small" id="ondeSub"></p>
+        <div id="ondeEsta" class="contas-list"></div>
+      </div>
+
       <div class="grid2">
         <div class="card stat">
           <div class="stat-label">Saldo previsto no fim do mês</div>
@@ -77,6 +83,7 @@
 
     <!-- LANÇAMENTOS -->
     <section class="view" id="view-lanc" hidden>
+      <select id="filtroConta" class="chip-select" aria-label="Filtrar por conta"></select>
       <div class="chips" id="filtros">
         <button class="chip active" data-f="todos">Todos</button>
         <button class="chip" data-f="in">Entradas</button>
@@ -100,8 +107,15 @@
       </div>
 
       <div class="card">
+        <h3>Minhas contas</h3>
+        <p class="muted">Bancos e dinheiro em espécie. Toque numa conta para editar, arquivar ou excluir.</p>
+        <div id="listaContas" class="contas-list"></div>
+        <button class="btn block" id="btnAddConta">Adicionar conta</button>
+      </div>
+
+      <div class="card">
         <h3>Planilha</h3>
-        <p class="muted">Importe o .xlsx no formato da sua planilha (abas com Data, Tipo, Descrição, Entrada, Saída, Realizado?). Os meses do arquivo são atualizados; seus lançamentos manuais são mantidos.</p>
+        <p class="muted">Importe o .xlsx no formato da sua planilha (abas com Data, Tipo, Descrição, Conta, Entrada, Saída, Realizado?). Os meses do arquivo são atualizados; seus lançamentos manuais são mantidos.</p>
         <label class="btn primary block">
           <input type="file" id="fileImport" hidden>
           Importar planilha (.xlsx)
@@ -112,11 +126,9 @@
       <div class="card">
         <h3>Premissas</h3>
         <form id="formSettings" class="form">
-          <label>Saldo inicial em conta (R$)
-            <input type="text" inputmode="decimal" name="saldoInicial">
-          </label>
           <label>Saldo inicial vale a partir de
             <input type="month" name="inicioMes">
+            <small>O saldo inicial de cada conta fica em Minhas contas.</small>
           </label>
           <label>Extra por quinta / sexta (R$)
             <input type="text" inputmode="decimal" name="extraQuiSex">
@@ -186,16 +198,25 @@
           <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
         </button>
       </div>
-      <div class="seg" id="segKind">
+      <div class="seg seg3" id="segKind">
         <button type="button" data-kind="out" class="active">Saída</button>
         <button type="button" data-kind="in">Entrada</button>
+        <button type="button" data-kind="transf">Transferência</button>
       </div>
       <label>Valor (R$)
         <input type="text" inputmode="decimal" name="valor" class="big" placeholder="0,00" required autocomplete="off">
       </label>
-      <label>Tipo
+      <label id="lblTipo">Tipo
         <select name="tipo" id="selTipo"></select>
       </label>
+      <div id="rowContas">
+        <label id="lblConta"><span id="lblContaTxt">Conta</span>
+          <select name="conta" id="selConta"></select>
+        </label>
+        <label id="lblContaDest" hidden>Para
+          <select name="contaDest" id="selContaDest"></select>
+        </label>
+      </div>
       <label>Descrição
         <input type="text" name="desc" list="descSugest" required autocomplete="off">
         <datalist id="descSugest"></datalist>
@@ -224,6 +245,10 @@
     <div class="form">
       <div class="sheet-head"><h2>Importar planilha</h2></div>
       <div id="importResumo"></div>
+      <label>Lançamentos sem conta vão para
+        <select id="impConta"></select>
+      </label>
+      <div id="impAvisos"></div>
       <label class="check"><input type="checkbox" id="impSettings" checked> Atualizar premissas (saldo inicial, extras)</label>
       <label class="check"><input type="checkbox" id="impManuais"> Também apagar lançamentos manuais desses meses</label>
       <div class="sheet-actions">
@@ -231,6 +256,37 @@
         <button type="button" class="btn primary grow" id="impOk">Importar</button>
       </div>
     </div>
+  </dialog>
+
+  <!-- Modal de conta -->
+  <dialog id="dlgConta" class="sheet">
+    <form id="formConta" class="form" novalidate>
+      <div class="sheet-head">
+        <h2 id="dlgContaTitle">Nova conta</h2>
+        <button type="button" class="icon-btn" id="dlgContaClose" aria-label="Fechar">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <label>Nome
+        <input type="text" name="nome" maxlength="40" autocomplete="off" placeholder="Ex.: Nubank, Dinheiro na carteira">
+      </label>
+      <label>Tipo
+        <select name="tipo">
+          <option value="banco">Banco / conta digital</option>
+          <option value="dinheiro">Dinheiro em espécie</option>
+        </select>
+      </label>
+      <label>Saldo inicial (R$)
+        <input type="text" inputmode="decimal" name="saldoInicial" placeholder="0,00" autocomplete="off">
+        <small id="contaSaldoHint"></small>
+      </label>
+      <p class="muted small" id="contaInfo"></p>
+      <div class="sheet-actions">
+        <button type="button" class="btn grow" id="btnArquivarConta">Arquivar</button>
+        <button type="button" class="btn danger grow" id="btnExcluirConta">Excluir</button>
+      </div>
+      <button type="submit" class="btn primary block">Salvar</button>
+    </form>
   </dialog>
 
   <div class="toast" id="toast" role="status"></div>
